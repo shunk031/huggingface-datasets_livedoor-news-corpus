@@ -1,5 +1,6 @@
 import datasets as ds
 import pytest
+from typing import Optional
 
 
 @pytest.fixture
@@ -21,11 +22,16 @@ def test_load_dataset(dataset_path: str):
         (0.6, 0.2, 0.2),
     ),
 )
+@pytest.mark.parametrize(
+    argnames="stratify_by_column,",
+    argvalues=(None, "category"),
+)
 def test_train_valid_test_split(
     dataset_path: str,
     tng_ratio: float,
     val_ratio: float,
     tst_ratio: float,
+    stratify_by_column: Optional[str],
 ):
     assert tng_ratio + val_ratio + tst_ratio == 1.0
     original_dataset = ds.load_dataset(path=dataset_path, split="train")
@@ -34,10 +40,12 @@ def test_train_valid_test_split(
     # split train and validation + test
     tng_valtst_dataset = original_dataset.train_test_split(  # type: ignore
         train_size=tng_ratio,
+        stratify_by_column=stratify_by_column,
     )
     # then, split validation + test to validation and test
     val_tst_dataset = tng_valtst_dataset["test"].train_test_split(
-        test_size=tst_ratio / (val_ratio + tst_ratio)
+        test_size=tst_ratio / (val_ratio + tst_ratio),
+        stratify_by_column=stratify_by_column,
     )
 
     dataset = ds.DatasetDict(
