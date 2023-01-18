@@ -36,9 +36,9 @@ def test_train_valid_test_split(
     assert tng_ratio + val_ratio + tst_ratio == 1.0
     dataset = ds.load_dataset(
         path=dataset_path,
-        tng_ratio=tng_ratio,
+        train_ratio=tng_ratio,
         val_ratio=val_ratio,
-        tst_ratio=tst_ratio,
+        test_ratio=tst_ratio,
     )
 
     assert (

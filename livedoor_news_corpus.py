@@ -28,9 +28,9 @@ _DOWNLOAD_URL = "https://www.rondhuit.com/download/ldcc-20140209.tar.gz"
 class LivedoorNewsCorpusConfig(ds.BuilderConfig):
     def __init__(
         self,
-        tng_ratio: float = 0.8,
+        train_ratio: float = 0.8,
         val_ratio: float = 0.1,
-        tst_ratio: float = 0.1,
+        test_ratio: float = 0.1,
         shuffle: bool = False,
         random_state: int = 0,
         name: str = "default",
@@ -46,11 +46,11 @@ class LivedoorNewsCorpusConfig(ds.BuilderConfig):
             data_files=data_files,
             description=description,
         )
-        assert tng_ratio + val_ratio + tst_ratio == 1.0
+        assert train_ratio + val_ratio + test_ratio == 1.0
 
-        self.tng_ratio = tng_ratio
+        self.train_ratio = train_ratio
         self.val_ratio = val_ratio
-        self.tst_ratio = tst_ratio
+        self.test_ratio = test_ratio
 
         self.shuffle = shuffle
         self.random_state = random_state
@@ -110,9 +110,9 @@ class LivedoorNewsCorpusDataset(ds.GeneratorBasedBuilder):
             random.shuffle(article_paths)
 
         num_articles = len(article_paths)
-        num_tng = math.ceil(num_articles * self.config.tng_ratio)  # type: ignore
+        num_tng = math.ceil(num_articles * self.config.train_ratio)  # type: ignore
         num_val = math.ceil(num_articles * self.config.val_ratio)  # type: ignore
-        num_tst = math.ceil(num_articles * self.config.tst_ratio)  # type: ignore
+        num_tst = math.ceil(num_articles * self.config.test_ratio)  # type: ignore
 
         tng_articles = article_paths[:num_tng]
         val_articles = article_paths[num_tng : num_tng + num_val]
