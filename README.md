@@ -34,7 +34,7 @@
 
 ### Dataset Summary
 
-[More Information Needed]
+> 本コーパスは、NHN Japan 株式会社が運営する「livedoor ニュース」のうち、下記のクリエイティブ・コモンズライセンスが適用されるニュース記事を収集し、可能な限り HTML タグを取り除いて作成したものです。
 
 ### Supported Tasks and Leaderboards
 
@@ -110,7 +110,7 @@
 
 ### Licensing Information
 
-[More Information Needed]
+> 各記事ファイルにはクリエイティブ・コモンズライセンス「表示 – 改変禁止」が適用されます。 クレジット表示についてはニュースカテゴリにより異なるため、ダウンロードしたファイルを展開したサブディレクトリにあるそれぞれの LICENSE.txt をご覧ください。 livedoor は NHN Japan 株式会社の登録商標です。
 
 ### Citation Information
 
