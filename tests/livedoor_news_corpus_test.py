@@ -4,7 +4,7 @@ import pytest
 
 @pytest.fixture
 def dataset_path() -> str:
-    return "livedoor_news_corpus.py"
+    return "livedoor-news-corpus.py"
 
 
 def test_load_dataset(dataset_path: str):
