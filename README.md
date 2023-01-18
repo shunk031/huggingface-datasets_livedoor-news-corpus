@@ -48,7 +48,34 @@
 
 ### Data Instances
 
-[More Information Needed]
+```python
+from datasets import load_dataset
+
+dataset = load_dataset(
+    "shunk031/livedoor-news-corpus", 
+    train_ratio=0.8,
+    val_ratio=0.1,
+    test_ratio=0.1,
+    random_state=42, 
+    shuffle=True,
+)
+
+print(dataset)
+# DatasetDict({
+#     train: Dataset({
+#         features: ['url', 'date', 'title', 'content', 'category'],
+#         num_rows: 5894
+#     })
+#     validation: Dataset({
+#         features: ['url', 'date', 'title', 'content', 'category'],
+#         num_rows: 737
+#     })
+#     test: Dataset({
+#         features: ['url', 'date', 'title', 'content', 'category'],
+#         num_rows: 736
+#     })
+# })
+```
 
 ### Data Fields
 
