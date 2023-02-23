@@ -1,9 +1,11 @@
 import logging
-import pathlib
-from typing import Dict, List, Union, Optional
-import random
-import datasets as ds
 import math
+import pathlib
+import random
+from dataclasses import asdict, dataclass
+from typing import List, Optional, Union
+
+import datasets as ds
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +25,15 @@ _LICENSE = """\
 
 
 _DOWNLOAD_URL = "https://www.rondhuit.com/download/ldcc-20140209.tar.gz"
+
+
+@dataclass
+class Article(object):
+    url: str
+    date: str
+    title: str
+    content: str
+    category: str
 
 
 class LivedoorNewsCorpusConfig(ds.BuilderConfig):
@@ -99,63 +110,66 @@ class LivedoorNewsCorpusDataset(ds.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager: ds.DownloadManager):
-        dataset_root = dl_manager.download_and_extract(_DOWNLOAD_URL)
-        dataset_root_dir = pathlib.Path(dataset_root) / "text"
 
-        article_paths = list(dataset_root_dir.glob("*/**/*.txt"))
-        article_paths = list(filter(lambda p: p.name != "LICENSE.txt", article_paths))
+        archive = dl_manager.download(_DOWNLOAD_URL)
+        tar_archive_iterator = dl_manager.iter_archive(archive)
+
+        articles: List[Article] = []
+        for tar_file_path, tar_file_obj in tar_archive_iterator:
+            file_path = pathlib.Path(tar_file_path)
+            article_category = file_path.parent.name
+
+            if (
+                file_path.match("README.txt")
+                or file_path.match("CHANGES.txt")
+                or file_path.match("LICENSE.txt")
+            ):
+                continue
+
+            print(file_path)
+
+            article_data = [line.decode().strip() for line in tar_file_obj.readlines()]
+            articles.append(self.parse_article(article_data, article_category))
 
         if self.config.shuffle:  # type: ignore
             random.seed(self.config.random_state)  # type: ignore
-            random.shuffle(article_paths)
+            random.shuffle(articles)
 
-        num_articles = len(article_paths)
+        num_articles = len(articles)
         num_tng = math.ceil(num_articles * self.config.train_ratio)  # type: ignore
         num_val = math.ceil(num_articles * self.config.val_ratio)  # type: ignore
         num_tst = math.ceil(num_articles * self.config.test_ratio)  # type: ignore
 
-        tng_articles = article_paths[:num_tng]
-        val_articles = article_paths[num_tng : num_tng + num_val]
-        tst_articles = article_paths[num_tng + num_val : num_tng + num_val + num_tst]
+        tng_articles = articles[:num_tng]
+        val_articles = articles[num_tng : num_tng + num_val]
+        tst_articles = articles[num_tng + num_val : num_tng + num_val + num_tst]
 
         assert len(tng_articles) + len(val_articles) + len(tst_articles) == num_articles
 
         return [
             ds.SplitGenerator(
                 name=ds.Split.TRAIN,  # type: ignore
-                gen_kwargs={"article_paths": tng_articles},
+                gen_kwargs={"articles": tng_articles},
             ),
             ds.SplitGenerator(
                 name=ds.Split.VALIDATION,  # type: ignore
-                gen_kwargs={"article_paths": val_articles},
+                gen_kwargs={"articles": val_articles},
             ),
             ds.SplitGenerator(
                 name=ds.Split.TEST,  # type: ignore
-                gen_kwargs={"article_paths": tst_articles},
+                gen_kwargs={"articles": tst_articles},
             ),
         ]
 
-    def parse_article(self, article_data: List[str]) -> Dict[str, str]:
-        article_url = article_data[0]
-        article_date = article_data[1]
-        article_title = article_data[2]
-        article_content = " ".join(article_data[3:])
+    def parse_article(self, article_data: List[str], article_category: str) -> Article:
+        return Article(
+            url=article_data[0],
+            date=article_data[1],
+            title=article_data[2],
+            category=article_category,
+            content=" ".join(article_data[3:]),
+        )
 
-        example_dict = {
-            "url": article_url,
-            "date": article_date,
-            "title": article_title,
-            "content": article_content,
-        }
-        return example_dict
-
-    def _generate_examples(self, article_paths: List[pathlib.Path]):  # type: ignore[override]
-
-        for i, article_path in enumerate(article_paths):
-            article_category = article_path.parent.name
-            with open(article_path, "r") as rf:
-                article_data = [line.strip() for line in rf]
-
-            example_dict = self.parse_article(article_data=article_data)
-            example_dict["category"] = article_category
-            yield i, example_dict
+    def _generate_examples(self, articles: List[Article]):  # type: ignore[override]
+        for i, article in enumerate(articles):
+            yield i, asdict(article)
