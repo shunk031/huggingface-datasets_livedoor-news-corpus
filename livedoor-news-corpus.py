@@ -110,7 +110,6 @@ class LivedoorNewsCorpusDataset(ds.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager: ds.DownloadManager):
-
         archive = dl_manager.download(_DOWNLOAD_URL)
         tar_archive_iterator = dl_manager.iter_archive(archive)
 
@@ -125,8 +124,6 @@ class LivedoorNewsCorpusDataset(ds.GeneratorBasedBuilder):
                 or file_path.match("LICENSE.txt")
             ):
                 continue
-
-            print(file_path)
 
             article_data = [line.decode().strip() for line in tar_file_obj.readlines()]
             articles.append(self.parse_article(article_data, article_category))
