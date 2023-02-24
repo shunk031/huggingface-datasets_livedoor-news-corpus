@@ -47,3 +47,32 @@ def test_train_valid_test_split(
         + dataset["test"].num_rows  # type: ignore
         == 7367
     )
+
+
+def test_load_dataset_streaming(dataset_path: str):
+    dataset_kwargs = {
+        "path": dataset_path,
+        "random_state": 42,
+        "shuffle": True,
+        "streaming": True,
+    }
+    tng_dataset = ds.load_dataset(
+        split="train",
+        **dataset_kwargs,  # type: ignore
+    )
+    val_dataset = ds.load_dataset(
+        split="validation",
+        **dataset_kwargs,  # type: ignore
+    )
+    tst_dataset = ds.load_dataset(
+        split="test",
+        **dataset_kwargs,  # type: ignore
+    )
+
+    for i, data in enumerate(tng_dataset):
+        print(data)
+    for j, _ in enumerate(val_dataset):
+        pass
+    for k, _ in enumerate(tst_dataset):
+        pass
+    assert i + j + k == 7367
