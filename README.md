@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/shunk031/huggingface-datasets_livedoor-news-corpus/actions/workflows/ci.yaml/badge.svg)](https://github.com/shunk031/huggingface-datasets_livedoor-news-corpus/actions/workflows/ci.yaml)
 
+![](https://raw.githubusercontent.com/shunk031/huggingface-datasets_livedoor-news-corpus/add-screenshot/.github/code-example.png)
+
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Dataset Description](#dataset-description)
