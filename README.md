@@ -1,3 +1,23 @@
+---
+annotations_creators: []
+language:
+- ja
+language_creators:
+- found
+license:
+- cc-by-nd-4.0
+multilinguality:
+- monolingual
+pretty_name: livedoor-news-corpus
+size_categories: []
+source_datasets: []
+tags: []
+task_categories:
+- text-classification
+task_ids:
+- multi-class-classification
+---
+
 # Dataset Card for Livedoor News Corpus
 
 [![CI](https://github.com/shunk031/huggingface-datasets_livedoor-news-corpus/actions/workflows/ci.yaml/badge.svg)](https://github.com/shunk031/huggingface-datasets_livedoor-news-corpus/actions/workflows/ci.yaml)
