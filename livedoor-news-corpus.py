@@ -1,9 +1,11 @@
 import logging
-import pathlib
-from typing import Dict, List, Union, Optional
-import random
-import datasets as ds
 import math
+import pathlib
+import random
+from dataclasses import dataclass
+from typing import Dict, List
+
+import datasets as ds
 
 logger = logging.getLogger(__name__)
 
@@ -25,45 +27,24 @@ _LICENSE = """\
 _DOWNLOAD_URL = "https://www.rondhuit.com/download/ldcc-20140209.tar.gz"
 
 
+@dataclass
 class LivedoorNewsCorpusConfig(ds.BuilderConfig):
-    def __init__(
-        self,
-        train_ratio: float = 0.8,
-        val_ratio: float = 0.1,
-        test_ratio: float = 0.1,
-        shuffle: bool = False,
-        random_state: int = 0,
-        name: str = "default",
-        version: Optional[Union[ds.utils.Version, str]] = ds.utils.Version("0.0.0"),
-        data_dir: Optional[str] = None,
-        data_files: Optional[ds.data_files.DataFilesDict] = None,
-        description: Optional[str] = None,
-    ) -> None:
-        super().__init__(
-            name=name,
-            version=version,
-            data_dir=data_dir,
-            data_files=data_files,
-            description=description,
-        )
-        assert train_ratio + val_ratio + test_ratio == 1.0
+    train_ratio: float = 0.8
+    val_ratio: float = 0.1
+    test_ratio: float = 0.1
+    shuffle: bool = False
+    random_state: int = 0
 
-        self.train_ratio = train_ratio
-        self.val_ratio = val_ratio
-        self.test_ratio = test_ratio
-
-        self.shuffle = shuffle
-        self.random_state = random_state
+    def __post_init__(self):
+        assert self.train_ratio + self.val_ratio + self.test_ratio == 1.0
 
 
 class LivedoorNewsCorpusDataset(ds.GeneratorBasedBuilder):
-    VERSION = ds.Version("1.0.0")  # type: ignore
-
-    BUILDER_CONFIG_CLASS = LivedoorNewsCorpusConfig  # type: ignore
-
+    VERSION = ds.Version("1.0.0")
+    BUILDER_CONFIG_CLASS = LivedoorNewsCorpusConfig
     BUILDER_CONFIGS = [
         LivedoorNewsCorpusConfig(
-            version=VERSION,  # type: ignore
+            version=VERSION,
             description="Livedoor ニュースコーパス",
         )
     ]
@@ -105,14 +86,16 @@ class LivedoorNewsCorpusDataset(ds.GeneratorBasedBuilder):
         article_paths = list(dataset_root_dir.glob("*/**/*.txt"))
         article_paths = list(filter(lambda p: p.name != "LICENSE.txt", article_paths))
 
-        if self.config.shuffle:  # type: ignore
-            random.seed(self.config.random_state)  # type: ignore
+        config: LivedoorNewsCorpusConfig = self.config
+
+        if config.shuffle:
+            random.seed(config.random_state)
             random.shuffle(article_paths)
 
         num_articles = len(article_paths)
-        num_tng = math.ceil(num_articles * self.config.train_ratio)  # type: ignore
-        num_val = math.ceil(num_articles * self.config.val_ratio)  # type: ignore
-        num_tst = math.ceil(num_articles * self.config.test_ratio)  # type: ignore
+        num_tng = math.ceil(num_articles * config.train_ratio)
+        num_val = math.ceil(num_articles * config.val_ratio)
+        num_tst = math.ceil(num_articles * config.test_ratio)
 
         tng_articles = article_paths[:num_tng]
         val_articles = article_paths[num_tng : num_tng + num_val]
@@ -150,7 +133,6 @@ class LivedoorNewsCorpusDataset(ds.GeneratorBasedBuilder):
         return example_dict
 
     def _generate_examples(self, article_paths: List[pathlib.Path]):  # type: ignore[override]
-
         for i, article_path in enumerate(article_paths):
             article_category = article_path.parent.name
             with open(article_path, "r") as rf:
